@@ -7,9 +7,11 @@ import Color from '../SkyblockUtilities/enums/Color';
 import Settings from './configfile';
 import Position from './Position';
 import Corners from './Corners';
-import FileUtilities from "../FileUtilities/main";
+import FileUtilities from '../FileUtilities/main';
+import request from '../requestV2/index';
 
 const moduleName = 'DarkMonolithWaypoints';
+const version = JSON.parse(FileLib.read(`${Config.modulesFolder}/${moduleName}/metadata.json`)).version;
 const EggPositionsList = [
   new Corners(new Position(-16, -92), new Position(-15, -93), 236),
   new Corners(new Position(48, -163), new Position(49, -161), 202),
@@ -27,10 +29,14 @@ const EggPositionsList = [
   new Corners(new Position(-65, -65), new Position(-64, -63), 206)
 ];
 const air = 'minecraft:air';
+const breakLine = '\n';
+const startSeparator = `${Color.YELLOW}---------- ${Color.GOLD}${moduleName} ${Color.YELLOW}----------${breakLine}`;
+const endSeparator = `${Color.YELLOW}---------------------------------------`;
 let lastPos = [0, 0, 0];
 let egg = null;
 
 updateMessage();
+checkForUpdates();
 
 register('command', () => Settings.openGUI()).setName('dmw');
 register('command', () => Settings.openGUI()).setName('darkmonolithwaypoints');
@@ -105,25 +111,40 @@ function isEnabled() {
   return Settings.enabled && SkyblockUtilities.getArea() === Area.DWARVEN_MINES;
 }
 
-function checkForUpdates() {
-  // TODO
-}
-
 function updateMessage() {
-	const version = `${Config.modulesFolder}/${moduleName}/updates/0.0.2`;
-	if (!FileUtilities.exists(version)) {
-		FileUtilities.newFile(version);
-		const breakLine = '\n';
+	const newVersion = `${Config.modulesFolder}/${moduleName}/updates/${version}`;
+	if (!FileUtilities.exists(newVersion)) {
+		FileUtilities.newFile(newVersion);
 		const message = new Message(
-			`${Color.YELLOW}---------- ${Color.GOLD}${moduleName} ${Color.YELLOW}----------${breakLine}` +
-			`${Color.DARK_GREEN}Changelog:${breakLine}` +
-			`${Color.GRAY}● ${Color.GREEN}added this changelog functionality${breakLine}` +
-      `${Color.GRAY}● ${Color.GREEN}added auto update from GitHub${breakLine}` +
-			`${Color.GRAY}● ${Color.GREEN}Dark Monoliths now will be removed if someone else has collected them${breakLine}${breakLine}` +
+			startSeparator,
+			`${Color.DARK_GREEN}Changelog:${breakLine}`,
+			`${Color.GRAY}● ${Color.GREEN}added this changelog functionality${breakLine}`,
+      `${Color.GRAY}● ${Color.GREEN}added update info${breakLine}`,
+			`${Color.GRAY}● ${Color.GREEN}Dark Monoliths now will be removed if someone else has collected them${breakLine}${breakLine}`,
 			`${Color.AQUA}Discord for suggestions, bug-reports, more modules and more:${breakLine}`,
 			new TextComponent(`${Color.BLUE}https://discord.gg/W64ZJJQQxy${breakLine}`).setClick('open_url', 'https://discord.gg/W64ZJJQQxy'),
-			`${Color.YELLOW}---------------------------------------`
+			endSeparator
 		);
 		ChatLib.chat(message);
 	}
+}
+
+function checkForUpdates() {
+  if (Settings.update) {
+    request({
+      url: 'https://raw.githubusercontent.com/Steinente/DarkMonolithWaypoints/master/metadata.json',
+      json: true
+    }).then(response => {
+      if (JSON.parse(JSON.stringify(response)).version !== version) {
+        const message = new Message(
+          startSeparator,
+          `${Color.RED}New version available! Download at:`,
+          new TextComponent(`${Color.BLUE}https://github.com/Steinente/DarkMonolithWaypoints/releases/latest${breakLine}`)
+            .setClick('open_url', 'https://github.com/Steinente/DarkMonolithWaypoints/releases/latest'),
+          endSeparator
+        );
+        ChatLib.chat(message);
+      }
+    });
+  }
 }
