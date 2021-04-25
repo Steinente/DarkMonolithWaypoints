@@ -1,29 +1,35 @@
 import { @Vigilant, @SwitchProperty } from 'Vigilance';
 
-const categoryDescription = '&5DarkMonolithWaypoints &7v0.0.1 by &6Steinente &7/ &6EnteStein';
+import Color from '../SkyblockUtilities/enums/Color';
 
-@Vigilant('DarkMonolithWaypoints')
+const moduleName = 'DarkMonolithWaypoints';
+const version = JSON.parse(FileLib.read(`${Config.modulesFolder}/${moduleName}/metadata.json`)).version;
+const categoryDescription = `${Color.DARK_PURPLE}${moduleName} ${Color.GRAY}v${version} by ${Color.GOLD}Steinente ${Color.GRAY}/ ${Color.GOLD}EnteStein`;
+const general = 'General';
+const updates = 'Updates';
+
+@Vigilant(moduleName)
 class Settings {
 
     @SwitchProperty({
         name: 'Enabled',
         description: 'Shows waypoints for the Dark Monoliths',
-        category: 'General',
-        subcategory: 'General'
+        category: general,
+        subcategory: general
     })
     enabled = true;
 
     @SwitchProperty({
         name: 'Notify when update',
-        category: 'Updates',
-        subcategory: 'Updates'
+        category: updates,
+        subcategory: updates
     })
     update = true;
 
     constructor() {
         this.initialize(this);
-        this.setCategoryDescription('General', categoryDescription);
-        this.setCategoryDescription('Updates', categoryDescription);
+        this.setCategoryDescription(general, categoryDescription);
+        this.setCategoryDescription(updates, categoryDescription);
     }
 }
 
