@@ -7,7 +7,9 @@ import Color from '../SkyblockUtilities/enums/Color';
 import Settings from './configfile';
 import Position from './Position';
 import Corners from './Corners';
+import FileUtilities from "../FileUtilities/main";
 
+const moduleName = 'DarkMonolithWaypoints';
 const EggPositionsList = [
   new Corners(new Position(-16, -92), new Position(-15, -93), 236),
   new Corners(new Position(48, -163), new Position(49, -161), 202),
@@ -27,6 +29,8 @@ const EggPositionsList = [
 const air = 'minecraft:air';
 let lastPos = [0, 0, 0];
 let egg = null;
+
+updateMessage();
 
 register('command', () => Settings.openGUI()).setName('dmw');
 register('command', () => Settings.openGUI()).setName('darkmonolithwaypoints');
@@ -62,8 +66,6 @@ function searchEgg() {
       if (egg !== null) {
         const blockAtEgg = World.getBlockAt(egg.getX(), egg.getY(), egg.getZ()).getRegistryName();
         const blockUnderEgg = World.getBlockAt(egg.getX(), egg.getY() - 1, egg.getZ()).getRegistryName();
-        console.log(blockAtEgg);
-        console.log(blockUnderEgg);
         if (blockUnderEgg !== air && blockAtEgg === air) {
           egg = null;
         }
@@ -80,7 +82,7 @@ function searchEgg() {
             let block = World.getBlockAt(x, eggPositions.getY(), z);
             if (block.getRegistryName() === 'minecraft:dragon_egg') {
               if (egg === null) {
-                ChatLib.chat(`${Color.GRAY}[${Color.DARK_PURPLE}DarkMonolithWaypoints${Color.GRAY}] ${Color.GREEN}Found a Dark Monolith!`);
+                ChatLib.chat(`${Color.GRAY}[${Color.DARK_PURPLE}${moduleName}${Color.GRAY}] ${Color.GREEN}A Dark Monolith appeared around you. Look around!`);
                 World.playSound('mob.enderdragon.growl', 100, 0);
               }
               egg = block;
@@ -101,4 +103,27 @@ function drawDragonEggTag() {
 
 function isEnabled() {
   return Settings.enabled && SkyblockUtilities.getArea() === Area.DWARVEN_MINES;
+}
+
+function checkForUpdates() {
+  // TODO
+}
+
+function updateMessage() {
+	const version = `${Config.modulesFolder}/${moduleName}/updates/0.0.2`;
+	if (!FileUtilities.exists(version)) {
+		FileUtilities.newFile(version);
+		const breakLine = '\n';
+		const message = new Message(
+			`${Color.YELLOW}---------- ${Color.GOLD}${moduleName} ${Color.YELLOW}----------${breakLine}` +
+			`${Color.DARK_GREEN}Changelog:${breakLine}` +
+			`${Color.GRAY}● ${Color.GREEN}added this changelog functionality${breakLine}` +
+      `${Color.GRAY}● ${Color.GREEN}added auto update from GitHub${breakLine}` +
+			`${Color.GRAY}● ${Color.GREEN}Dark Monoliths now will be removed if someone else has collected them${breakLine}${breakLine}` +
+			`${Color.AQUA}Discord for suggestions, bug-reports, more modules and more:${breakLine}`,
+			new TextComponent(`${Color.BLUE}https://discord.gg/W64ZJJQQxy${breakLine}`).setClick('open_url', 'https://discord.gg/W64ZJJQQxy'),
+			`${Color.YELLOW}---------------------------------------`
+		);
+		ChatLib.chat(message);
+	}
 }

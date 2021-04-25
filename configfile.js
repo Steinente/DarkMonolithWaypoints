@@ -1,5 +1,7 @@
 import { @Vigilant, @SwitchProperty } from 'Vigilance';
 
+const categoryDescription = '&5DarkMonolithWaypoints &7v0.0.1 by &6Steinente &7/ &6EnteStein';
+
 @Vigilant('DarkMonolithWaypoints')
 class Settings {
 
@@ -11,9 +13,17 @@ class Settings {
     })
     enabled = true;
 
+    @SwitchProperty({
+        name: 'Notify when update',
+        category: 'Updates',
+        subcategory: 'Updates'
+    })
+    update = true;
+
     constructor() {
         this.initialize(this);
-        this.setCategoryDescription('General', '&5BetterFetchurSolver &7v0.0.1 by &6Steinente &7/ &6EnteStein');
+        this.setCategoryDescription('General', categoryDescription);
+        this.setCategoryDescription('Updates', categoryDescription);
     }
 }
 
